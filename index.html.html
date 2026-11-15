@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منظومة مشروع دمر العقارية</title>
+    <style>
+        /* ==========================================================================
+           التصميم الأساسي والألوان (CSS Variables & Clean Responsive Layout)
+           ========================================================================== */
+        :root {
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --primary: #0284c7;
+            --primary-dark: #0369a1;
+            --primary-light: #e0f2fe;
+            --success: #16a34a;
+            --warning: #ea580c;
+            --danger: #dc2626;
+            --radius: 14px;
+            --shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+            transition: all 0.15s ease;
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        input, select, textarea {
+            font-family: inherit;
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 14px;
+            background: #fff;
+            color: var(--text-main);
+            outline: none;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+
+        /* ==========================================================================
+           الشريط العلوي والتنقل (Header & Tabs)
+           ========================================================================== */
+        header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 16px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            z-index: 20;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-logo {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: #fff;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 6px;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 12px;
+            overflow-x: auto;
+        }
+
+        .nav-btn {
+            padding: 8px 14px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            background: transparent;
+            white-space: nowrap;
+        }
+
+        .nav-btn.active {
+            background: #fff;
+            color: var(--primary-dark);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+
+        .btn {
+            padding: 9px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background: #fff;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            background: #f8fafc;
+        }
+
+        .btn-danger {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+
+        /* ==========================================================================
+           الأقسام الرئيسية (Main Views)
+           ========================================================================== */
+        main {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .view-section {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        .view-section.active {
+            display: flex;
+        }
+
+        /* قسم الخريطة والقائمة الجانبية */
+        .map-layout {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        .sidebar {
+            width: 340px;
+            background: var(--bg-card);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            z-index: 10;
+        }
+
+        .sidebar-header {
+            padding: 14px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .filter-chip {
+            padding: 5px 10px;
+            border-radius: 99px;
+            font-size: 11.5px;
+            font-weight: 700;
+            background: #f1f5f9;
+            color: var(--text-muted);
+        }
+
+        .filter-chip.active {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .buildings-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .bldg-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            cursor: pointer;
+            transition: border-color 0.15s;
+        }
+
+        .bldg-card:hover {
+            border-color: var(--primary);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .st-sale { background: #dcfce7; color: #166534; }
+        .st-rent { background: #dbeafe; color: #1e40af; }
+        .st-nego { background: #ffedd5; color: #9a3412; }
+        .st-sold { background: #fee2e2; color: #991b1b; }
+
+        /* حاوية الخريطة التفاعلية */
+        .map-container {
+            flex: 1;
+            position: relative;
+            background: #e2e8f0;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .map-toolbar {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            z-index: 15;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .map-hint {
+            background: rgba(15, 23, 42, 0.85);
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-size: 12.5px;
+            font-weight: 600;
+            backdrop-filter: blur(4px);
+        }
+
+        .zoom-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 15;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .zoom-btn {
+            width: 38px;
+            height: 38px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--text-main);
+            box-shadow: var(--shadow);
+        }
+
+        /* عناصر الخريطة SVG */
+        .island-shape {
+            fill: #ffffff;
+            stroke: #94a3b8;
+            stroke-width: 2.5;
+            cursor: pointer;
+            transition: fill 0.15s;
+        }
+
+        .island-shape:hover {
+            fill: #f0f9ff;
+            stroke: #0284c7;
+        }
+
+        .island-label {
+            font-size: 15px;
+            font-weight: 800;
+            fill: #334155;
+            pointer-events: none;
+            text-anchor: middle;
+        }
+
+        .pin-group {
+            cursor: pointer;
+        }
+
+        /* ==========================================================================
+           الأقسام الأخرى (المالية والمحادثة)
+           ========================================================================== */
+        .page-scroll {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .container-max {
+            max-width: 960px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .stat-box {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* المحادثة */
+        .chat-box {
+            height: 360px;
+            overflow-y: auto;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .msg-bubble {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 13.5px;
+            line-height: 1.5;
+        }
+
+        .msg-me {
+            align-self: flex-start;
+            background: var(--primary);
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+
+        .msg-partner {
+            align-self: flex-end;
+            background: #fff;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            border-bottom-left-radius: 4px;
+        }
+
+        /* ==========================================================================
+           النوافذ المنبثقة (Modals)
+           ========================================================================== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 100;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-dialog {
+            background: #fff;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            padding: 14px 18px;
+            background: #0f172a;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-body {
+            padding: 18px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        /* إشعار عائم */
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #0f172a;
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            font-weight: 700;
+            z-index: 300;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s;
+        }
+
+        #toast.visible {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .map-layout {
+                flex-direction: column-reverse;
+            }
+            .sidebar {
+                width: 100%;
+                height: 45%;
+                border-left: none;
+                border-top: 1px solid var(--border);
+            }
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==========================================================================
+         الشريط العلوي
+         ========================================================================== -->
+    <header>
+        <div class="brand">
+            <div class="brand-logo">🏢</div>
+            <div>
+                <div style="font-weight: 800; font-size: 15px;">منظومة مشروع دمر العقارية</div>
+                <div style="font-size: 11.5px; color: var(--text-muted);">إدارة مشتركة (أنا وشريكي) • تعمل أوفلاين</div>
+            </div>
+        </div>
+
+        <nav class="nav-tabs">
+            <button type="button" class="nav-btn active" onclick="switchTab('mapTab', this)">🗺️ الخريطة والعروض</button>
+            <button type="button" class="nav-btn" onclick="switchTab('financeTab', this)">💰 الحسابات والعمولات</button>
+            <button type="button" class="nav-btn" onclick="switchTab('chatTab', this)">💬 محادثة الشريكين</button>
+            <button type="button" class="nav-btn" onclick="switchTab('backupTab', this)">🔄 حفظ ومشاركة البيانات</button>
+        </nav>
+
+        <button type="button" class="btn btn-primary" onclick="openNewBuildingModal(800, 550, 'الجزيرة 11')">
+            + إضافة عرض عقاري
+        </button>
+    </header>
+
+    <!-- ==========================================================================
+         المحتوى الرئيسي
+         ========================================================================== -->
+    <main>
+        <!-- 1. قسم الخريطة والعروض -->
+        <section id="mapTab" class="view-section active">
+            <div class="map-layout">
+                <!-- القائمة الجانبية للعروض -->
+                <aside class="sidebar">
+                    <div class="sidebar-header">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong style="font-size:14px;">العروض المسجلة (<span id="totalCount">0</span>)</strong>
+                            <button type="button" id="clearAllBtn" class="btn btn-danger" style="padding:4px 10px; font-size:11.5px; display:none;" onclick="askDeleteAll()">🗑️ مسح الكل</button>
+                        </div>
+                        <input type="text" id="searchInput" placeholder="ابحث برقم البناء، الجزيرة، المالك..." oninput="renderAll()">
+                        <div class="filter-row">
+                            <button type="button" class="filter-chip active" onclick="setFilter('all', this)">الكل</button>
+                            <button type="button" class="filter-chip" onclick="setFilter('sale', this)">للبيع</button>
+                            <button type="button" class="filter-chip" onclick="setFilter('rent', this)">للإيجار</button>
+                            <button type="button" class="filter-chip" onclick="setFilter('nego', this)">تفاوض</button>
+                            <button type="button" class="filter-chip" onclick="setFilter('sold', this)">مباع</button>
+                        </div>
+                    </div>
+                    <div id="buildingsList" class="buildings-list"></div>
+                </aside>
+
+                <!-- الخريطة الهندسية التفاعلية لمشروع دمر -->
+                <div class="map-container" id="mapWrapper">
+                    <div class="map-toolbar">
+                        <div class="map-hint" id="mapInstructionBanner">
+                            👆 انقر على أي جزيرة في الخريطة لإضافة بناء جديد وتحديد موقعه
+                        </div>
+                        <button type="button" id="cancelMoveBtn" class="btn btn-danger" style="display:none;" onclick="cancelMovePin()">
+                            إلغاء نقل الدبوس
+                        </button>
+                    </div>
+
+                    <div class="zoom-controls">
+                        <button type="button" class="zoom-btn" onclick="changeZoom(1.2)" title="تكبير">+</button>
+                        <button type="button" class="zoom-btn" onclick="changeZoom(0.8)" title="تصغير">−</button>
+                        <button type="button" class="zoom-btn" onclick="resetZoom()" title="إعادة ضبط" style="font-size:14px;">⌂</button>
+                    </div>
+
+                    <svg id="dummarMap" width="100%" height="100%" viewBox="0 0 1600 1100">
+                        <g id="mapViewport">
+                            <!-- خلفية المخطط والطرق -->
+                            <rect x="0" y="0" width="1600" height="1100" fill="#e2e8f0" />
+                            <path d="M 50 550 L 1550 550 M 800 50 L 800 1050 M 350 100 L 350 1000 M 1250 100 L 1250 1000" stroke="#cbd5e1" stroke-width="26" fill="none" />
+                            <path d="M 50 550 L 1550 550 M 800 50 L 800 1050 M 350 100 L 350 1000 M 1250 100 L 1250 1000" stroke="#ffffff" stroke-width="2" stroke-dasharray="12,12" fill="none" />
+
+                            <!-- جزر ومناطق مشروع دمر -->
+                            <g id="islandsLayer">
+                                <!-- الصف العلوي -->
+                                <rect class="island-shape" data-zone="الجزيرة 1" x="80" y="70" width="230" height="180" rx="18" />
+                                <text class="island-label" x="195" y="165">الجزيرة 1</text>
+
+                                <rect class="island-shape" data-zone="الجزيرة 2" x="390" y="70" width="180" height="180" rx="18" />
+                                <text class="island-label" x="480" y="165">الجزيرة 2</text>
+
+                                <rect class="island-shape" data-zone="الجزيرة 3" x="600" y="70" width="170" height="180" rx="18" />
+                                <text class="island-label" x="685" y="165">الجزيرة 3</text>
+
+                                <rect class="island-shape" data-zone="الجزيرة 4" x="830" y="70" width="180" height="180" rx="18" />
+                                <text class="island-label" x="920" y="165">الجزيرة 4</text>
+
+                                <rect class="island-shape" data-zone="الجزيرة 5" x="1040" y="70" width="180" height="180" rx="18" />
+                                <text class="island-label" x="1130" y="165">الجزيرة 5</text>
+
+                                <rect class="island-shape" data-zone="التراسات" x="1290" y="70" width="230" height="180" rx="18" />
+                                <text class="island-label" x="1405" y="165">التراسات</text>
+
+                                <!-- الصف الأوسط العلوي -->
+                                <rect class="island-shape" data-zone="الجزيرة 6" x="80" y="290" width="230" height="220" rx="18" />
+                                <text class="island-label" x="195" y="405">الجزيرة 6</text>
+
+                                <rect class="island-shape" data-zone="الجزيرة 7" x="390" y="290" width="180" height="220" rx="18" />
+                                <text class="island-label" x="480" y="405">الجزيرة 7</text>
+
+                                <rect class="island-shape" data-zone="الساحة الرئيسية" x="600" y="290" width="170" height="220" rx="18" style="fill:#f0fdf4;" />
+                                <text class="island-label" x="685" y="405">الساحة الرئيسية</text>
+
+                                <rect class="island-shape" data-zone="الجزيرة 8" x="830" y="290" width="180" height="220" rx="18" />
+                                <text class="island-label" x="920" y="405">الجزيرة 8</text>
+
+                                <rect class="island-shape" data-zone="الجزيرة 9" x="1040" y="290" width="180" height="220" rx="18" />
+                                <text class="island-label" x="1130" y="405">الجزيرة 9</text>
+
+                                <rect class="island-shape" data-zone="الجزيرة 10" x="1290" y="290" width="230" height="220" rx="18" />
+                                <text class="island-label" x="1405" y="405">الجزيرة 10</text>
+
+                                <!-- الصف الأوسط السفلي -->
+                                <rect class="island-shape" data-zone="الجزيرة 11" x="80" y="590" width="230" height="210" rx="18" />
+                                <text class="island-label" x="195" y="700">الجزيرة 11</text>
+
+                                <rect class="island-shape" data-zone="الجزيرة 12" x="390" y="590" width="180" height="210" rx="18" />
+                                <text class="island-label" x="480" y="700">الجزيرة 12</text>
+
+                                <rect class="island-shape" data-zone="الجزيرة 13" x="600" y="590" width="170" height="210" rx="18" />
+                                <text class="island-label" x="685" y="700">الجزيرة 13</text>
+
+                                <rect class="island-shape" data-zone="الجزيرة 14" x="830" y="590" width="180" height="210" rx="18" />
+                                <text class="island-label" x="920" y="700">الجزيرة 14</text>
+
+                                <rect class="island-shape" data-zone="الجزيرة 15" x="1040" y="590" width="180" height="210" rx="18" />
+                                <text class="island-label" x="1130" y="700">الجزيرة 15</text>
+
+                                <rect class="island-shape" data-zone="الجزيرة 16" x="1290" y="590" width="230" height="210" rx="18" />
+                                <text class="island-label" x="1405" y="700">الجزيرة 16</text>
+
+                                <!-- الصف السفلي -->
+                                <rect class="island-shape" data-zone="وادي المشاريع" x="80" y="830" width="690" height="200" rx="18" />
+                                <text class="island-label" x="425" y="935">وادي المشاريع</text>
+
+                                <rect class="island-shape" data-zone="الحديقة المركزية والخدمات" x="830" y="830" width="690" height="200" rx="18" style="fill:#ecfdf5;" />
+                                <text class="island-label" x="1175" y="935">الحديقة المركزية والخدمات</text>
+                            </g>
+
+                            <!-- طبقة الدبابيس -->
+                            <g id="pinsLayer"></g>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. قسم الحسابات والعمولات -->
+        <section id="financeTab" class="view-section">
+            <div class="page-scroll">
+                <div class="container-max">
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div style="font-size:12px; color:var(--text-muted);">إجمالي العمولات (USD)</div>
+                            <div id="statTotalComm" style="font-size:22px; font-weight:900; color:var(--success); margin-top:4px;">0 $</div>
+                        </div>
+                        <div class="stat-box">
+                            <div style="font-size:12px; color:var(--text-muted);">مصاريف المكتب (USD)</div>
+                            <div id="statTotalExp" style="font-size:22px; font-weight:900; color:var(--danger); margin-top:4px;">0 $</div>
+                        </div>
+                        <div class="stat-box">
+                            <div style="font-size:12px; color:var(--text-muted);">صافي حصة (أنا)</div>
+                            <div id="statMyShare" style="font-size:22px; font-weight:900; color:var(--primary-dark); margin-top:4px;">0 $</div>
+                        </div>
+                        <div class="stat-box">
+                            <div style="font-size:12px; color:var(--text-muted);">صافي حصة (شريكي)</div>
+                            <div id="statPartnerShare" style="font-size:22px; font-weight:900; color:var(--primary-dark); margin-top:4px;">0 $</div>
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <!-- حاسبة وتسجيل صفقة -->
+                        <div class="card">
+                            <h3 style="margin-bottom:12px; font-size:16px;">🧮 تسجيل صفقة وحساب العمولة</h3>
+                            <div style="display:flex; flex-direction:column; gap:10px;">
+                                <div>
+                                    <label class="form-label">وصف العقار / الصفقة</label>
+                                    <input type="text" id="dealTitle" placeholder="مثال: شقة الجزيرة 16 بناء 4">
+                                </div>
+                                <div class="grid-2">
+                                    <div>
+                                        <label class="form-label">سعر البيع / الإيجار ($)</label>
+                                        <input type="number" id="dealPrice" placeholder="150000" oninput="calcCommissionPreview()">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">نسبة العمولة الإجمالية (%)</label>
+                                        <input type="number" id="dealPercent" value="2.5" step="0.1" oninput="calcCommissionPreview()">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="form-label">نسبة حصتي من الربح (%) - الباقي للشريك</label>
+                                    <input type="number" id="dealMyRatio" value="50" min="0" max="100" oninput="calcCommissionPreview()">
+                                </div>
+                                <div id="commPreviewBox" style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:10px; font-size:13px; color:#166534; font-weight:700;">
+                                    العمولة المتوقعة: 0 $ (حصتي: 0 $ | شريكي: 0 $)
+                                </div>
+                                <button type="button" class="btn btn-primary" onclick="addDeal()">+ تسجيل الصفقة في الحسابات</button>
+                            </div>
+                        </div>
+
+                        <!-- تسجيل مصاريف المكتب -->
+                        <div class="card">
+                            <h3 style="margin-bottom:12px; font-size:16px;">🧾 تسجيل مصاريف المكتب</h3>
+                            <div style="display:flex; flex-direction:column; gap:10px;">
+                                <div>
+                                    <label class="form-label">بيان المصروف</label>
+                                    <input type="text" id="expTitle" placeholder="مثال: ضيافة، إعلانات، فواتير...">
+                                </div>
+                                <div>
+                                    <label class="form-label">المبلغ ($)</label>
+                                    <input type="number" id="expAmount" placeholder="50">
+                                </div>
+                                <button type="button" class="btn btn-outline" onclick="addExpense()">+ خصم المصروف من الأرباح</button>
+                            </div>
+
+                            <h4 style="margin-top:18px; margin-bottom:8px; font-size:14px;">سجل الصفقات والمصاريف:</h4>
+                            <div id="financeHistoryList" style="display:flex; flex-direction:column; gap:8px; max-height:200px; overflow-y:auto;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. قسم محادثة الشريكين -->
+        <section id="chatTab" class="view-section">
+            <div class="page-scroll">
+                <div class="container-max">
+                    <div class="card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                            <h3 style="font-size:16px;">💬 دفتر التنسيق والمحادثة بين الشريكين</h3>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-size:12px; font-weight:700;">أكتب بصفتي:</span>
+                                <select id="chatSender" style="width:auto; padding:6px 10px;">
+                                    <option value="أنا">أنا</option>
+                                    <option value="شريكي">شريكي</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="chatMessagesBox" class="chat-box"></div>
+
+                        <div style="display:flex; gap:8px; margin-top:12px;">
+                            <input type="text" id="chatInput" placeholder="اكتب ملاحظة حول معاينة أو زبون أو بناء..." onkeydown="if(event.key==='Enter') sendMessage()">
+                            <button type="button" class="btn btn-primary" onclick="sendMessage()">إرسال</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. قسم حفظ ومشاركة البيانات أوفلاين -->
+        <section id="backupTab" class="view-section">
+            <div class="page-scroll">
+                <div class="container-max">
+                    <div class="card">
+                        <h3 style="margin-bottom:8px; font-size:16px;">🔄 نسخ ومزامنة البيانات مع شريكك (أوفلاين)</h3>
+                        <p style="font-size:13px; color:var(--text-muted); margin-bottom:14px; line-height:1.6;">
+                            يعمل التطبيق بدون إنترنت. لمشاركة آخر العروض والحسابات مع شريكك، اضغط <strong>"نسخ كود البيانات"</strong> وأرسله له عبر الواتساب، ليقوم بلصقه هنا والضغط على <strong>"استيراد ودمج البيانات"</strong>.
+                        </p>
+
+                        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
+                            <button type="button" class="btn btn-primary" onclick="exportSyncCode()">📋 توليد ونسخ كود البيانات</button>
+                            <button type="button" class="btn btn-outline" onclick="importSyncCode()">📥 استيراد البيانات من الكود</button>
+                        </div>
+
+                        <label class="form-label">صندوق كود البيانات (JSON):</label>
+                        <textarea id="syncTextBox" rows="6" placeholder="هنا يظهر كود البيانات عند التصدير، أو الصق كود شريكك هنا للاستيراد..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ==========================================================================
+         نافذة إضافة / تعديل عرض عقاري
+         ========================================================================== -->
+    <div id="buildingModal" class="modal-overlay">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 id="modalTitle" style="font-size:15px; font-weight:800;">إضافة عرض عقاري</h3>
+                <button type="button" onclick="closeModal('buildingModal')" style="color:#fff; background:none; font-size:18px;">✕</button>
+            </div>
+            <form id="buildingForm" class="modal-body" onsubmit="saveBuilding(event)">
+                <input type="hidden" id="editId">
+                <input type="hidden" id="posX">
+                <input type="hidden" id="posY">
+
+                <div class="grid-2">
+                    <div>
+                        <label class="form-label">الجزيرة / المنطقة *</label>
+                        <select id="fZone" required>
+                            <option value="الجزيرة 1">الجزيرة 1</option>
+                            <option value="الجزيرة 2">الجزيرة 2</option>
+                            <option value="الجزيرة 3">الجزيرة 3</option>
+                            <option value="الجزيرة 4">الجزيرة 4</option>
+                            <option value="الجزيرة 5">الجزيرة 5</option>
+                            <option value="الجزيرة 6">الجزيرة 6</option>
+                            <option value="الجزيرة 7">الجزيرة 7</option>
+                            <option value="الجزيرة 8">الجزيرة 8</option>
+                            <option value="الجزيرة 9">الجزيرة 9</option>
+                            <option value="الجزيرة 10">الجزيرة 10</option>
+                            <option value="الجزيرة 11">الجزيرة 11</option>
+                            <option value="الجزيرة 12">الجزيرة 12</option>
+                            <option value="الجزيرة 13">الجزيرة 13</option>
+                            <option value="الجزيرة 14">الجزيرة 14</option>
+                            <option value="الجزيرة 15">الجزيرة 15</option>
+                            <option value="الجزيرة 16">الجزيرة 16</option>
+                            <option value="التراسات">التراسات</option>
+                            <option value="وادي المشاريع">وادي المشاريع</option>
+                            <option value="الساحة الرئيسية">الساحة الرئيسية</option>
+                            <option value="الحديقة المركزية والخدمات">الحديقة المركزية والخدمات</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">رقم البناء / المقسم *</label>
+                        <input type="text" id="fNumber" required placeholder="مثال: بناء 12">
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div>
+                        <label class="form-label">حالة العرض</label>
+                        <select id="fStatus">
+                            <option value="sale">متاح للبيع (أخضر)</option>
+                            <option value="rent">متاح للإيجار (أزرق)</option>
+                            <option value="nego">قيد التفاوض (برتقالي)</option>
+                            <option value="sold">مباع / مغلق (أحمر)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">نوع العقار</label>
+                        <select id="fType">
+                            <option value="شقة سكنية">شقة سكنية</option>
+                            <option value="دوبلكس">دوبلكس</option>
+                            <option value="أرضي مع حديقة">أرضي مع حديقة</option>
+                            <option value="محل تجاري">محل تجاري</option>
+                            <option value="مكتب">مكتب</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div>
+                        <label class="form-label">الطابق والمساحة</label>
+                        <input type="text" id="fDetails" placeholder="طابق 2 - 140 م²">
+                    </div>
+                    <div>
+                        <label class="form-label">السعر المطلوب</label>
+                        <input type="text" id="fPrice" placeholder="145,000 $">
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div>
+                        <label class="form-label">اسم المالك / الوسيط</label>
+                        <input type="text" id="fOwner" placeholder="أبو أحمد">
+                    </div>
+                    <div>
+                        <label class="form-label">رقم الهاتف</label>
+                        <input type="text" id="fPhone" placeholder="09xxxxxxxx">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="form-label">ملاحظات إضافية (الكسوة، الطابو، المفتاح...)</label>
+                    <textarea id="fNotes" rows="2" placeholder="كسوة سوبر ديلوكس، طابو أخضر..."></textarea>
+                </div>
+
+                <div id="movePinBox" style="display:none;">
+                    <button type="button" class="btn btn-outline" style="width:100%;" onclick="startMovePin()">
+                        📍 تغيير موقع الدبوس بالنقر على الخريطة
+                    </button>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:6px;">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('buildingModal')">إلغاء</button>
+                    <button type="submit" class="btn btn-primary">حفظ العرض</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         نافذة عرض تفاصيل البناء
+         ========================================================================== -->
+    <div id="detailsModal" class="modal-overlay">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 id="detTitle" style="font-size:15px; font-weight:800;">تفاصيل العقار</h3>
+                <button type="button" onclick="closeModal('detailsModal')" style="color:#fff; background:none; font-size:18px;">✕</button>
+            </div>
+            <div class="modal-body">
+                <div id="detContent" style="display:flex; flex-direction:column; gap:10px; font-size:14px;"></div>
+                <div style="display:flex; justify-content:space-between; gap:8px; padding-top:12px; border-top:1px solid var(--border); flex-wrap:wrap;">
+                    <button type="button" id="detCopyBtn" class="btn btn-outline">📋 نسخ الإعلان</button>
+                    <div style="display:flex; gap:8px;">
+                        <button type="button" id="detEditBtn" class="btn btn-primary">✏️ تعديل</button>
+                        <button type="button" id="detDeleteBtn" class="btn btn-danger">🗑️ حذف</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         نافذة تأكيد الحذف المخصصة (بديل confirm)
+         ========================================================================== -->
+    <div id="confirmModal" class="modal-overlay" style="z-index:200;">
+        <div class="modal-dialog" style="max-width:380px;">
+            <div class="modal-header" style="background:#dc2626;">
+                <h3 style="font-size:15px; font-weight:800;">تأكيد الحذف</h3>
+                <button type="button" onclick="closeModal('confirmModal')" style="color:#fff; background:none; font-size:18px;">✕</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage" style="font-size:14px; line-height:1.6;"></p>
+                <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('confirmModal')">تراجع</button>
+                    <button type="button" id="confirmYesBtn" class="btn btn-danger" style="background:#dc2626; color:#fff;">نعم، احذف</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast">تم التنفيذ بنجاح</div>
+
+    <script>
+        /* ==========================================================================
+           1. حالة التطبيق في الذاكرة (In-Memory State - بدون قيود localStorage)
+           ========================================================================== */
+        let appState = {
+            buildings: [],
+            deals: [],
+            expenses: [],
+            messages: [
+                { sender: 'أنا', text: 'مرحباً! الخريطة جاهزة، انقر على أي جزيرة لإضافة أول عرض عقاري.', time: 'الآن' }
+            ]
+        };
+
+        let currentFilter = 'all';
+        let movingBuildingId = null;
+
+        // متغيرات تحريك وتكبير الخريطة
+        let view = { scale: 1, x: 0, y: 0, isDragging: false, startX: 0, startY: 0, moved: 0 };
+
+        /* ==========================================================================
+           2. دوال مساعدة عامة (النوافذ، الإشعارات، التنقل)
+           ========================================================================== */
+        function showToast(text) {
+            const toast = document.getElementById('toast');
+            toast.textContent = text;
+            toast.classList.add('visible');
+            clearTimeout(window._tTimer);
+            window._tTimer = setTimeout(() => toast.classList.remove('visible'), 2500);
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('show');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+        }
+
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            renderAll();
+        }
+
+        /* ==========================================================================
+           3. تفاعل الخريطة (النقر، التحريك، التكبير)
+           ========================================================================== */
+        function updateMapTransform() {
+            const vp = document.getElementById('mapViewport');
+            vp.setAttribute('transform', `translate(${view.x}, ${view.y}) scale(${view.scale})`);
+        }
+
+        function changeZoom(factor) {
+            view.scale = Math.min(Math.max(view.scale * factor, 0.6), 3);
+            updateMapTransform();
+        }
+
+        function resetZoom() {
+            view = { scale: 1, x: 0, y: 0, isDragging: false, startX: 0, startY: 0, moved: 0 };
+            updateMapTransform();
+        }
+
+        function clientToMapCoords(clientX, clientY) {
+            const svg = document.getElementById('dummarMap');
+            const rect = svg.getBoundingClientRect();
+            const svgX = ((clientX - rect.left) / rect.width) * 1600;
+            const svgY = ((clientY - rect.top) / rect.height) * 1100;
+            return {
+                x: Math.round((svgX - view.x) / view.scale),
+                y: Math.round((svgY - view.y) / view.scale)
+            };
+        }
+
+        const mapWrapper = document.getElementById('mapWrapper');
+
+        mapWrapper.addEventListener('pointerdown', (e) => {
+            if (e.target.closest('.zoom-controls') || e.target.closest('.map-toolbar')) return;
+            view.isDragging = true;
+            view.startX = e.clientX;
+            view.startY = e.clientY;
+            view.moved = 0;
+        });
+
+        window.addEventListener('pointermove', (e) => {
+            if (!view.isDragging) return;
+            const dx = e.clientX - view.startX;
+            const dy = e.clientY - view.startY;
+            view.moved += Math.abs(dx) + Math.abs(dy);
+            view.x += dx;
+            view.y += dy;
+            view.startX = e.clientX;
+            view.startY = e.clientY;
+            updateMapTransform();
+        });
+
+        window.addEventListener('pointerup', (e) => {
+            if (!view.isDragging) return;
+            view.isDragging = false;
+
+            // إذا كانت نقرة ثابتة وليست سحباً للخريطة
+            if (view.moved < 8 && e.target.closest('#dummarMap') && !e.target.closest('.pin-group')) {
+                const coords = clientToMapCoords(e.clientX, e.clientY);
+                const zoneAttr = e.target.getAttribute('data-zone') || 'الجزيرة 11';
+
+                if (movingBuildingId) {
+                    const b = appState.buildings.find(item => item.id === movingBuildingId);
+                    if (b) {
+                        b.x = coords.x;
+                        b.y = coords.y;
+                        b.zone = zoneAttr;
+                        showToast('تم نقل موقع الدبوس إلى ' + zoneAttr);
+                    }
+                    cancelMovePin();
+                    renderAll();
+                    return;
+                }
+
+                openNewBuildingModal(coords.x, coords.y, zoneAttr);
+            }
+        });
+
+        mapWrapper.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            changeZoom(e.deltaY < 0 ? 1.15 : 0.85);
+        }, { passive: false });
+
+        /* ==========================================================================
+           4. إدارة العروض العقارية (إضافة، تعديل، نقل، حذف)
+           ========================================================================== */
+        function getStatusInfo(status) {
+            const map = {
+                sale: { label: 'للبيع', color: '#16a34a', cls: 'st-sale' },
+                rent: { label: 'للإيجار', color: '#2563eb', cls: 'st-rent' },
+                nego: { label: 'قيد التفاوض', color: '#ea580c', cls: 'st-nego' },
+                sold: { label: 'مباع / مغلق', color: '#dc2626', cls: 'st-sold' }
+            };
+            return map[status] || map.sale;
+        }
+
+        function setFilter(filter, btn) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            renderAll();
+        }
+
+        function openNewBuildingModal(x, y, zone) {
+            document.getElementById('modalTitle').textContent = 'إضافة عرض عقاري جديد (' + zone + ')';
+            document.getElementById('editId').value = '';
+            document.getElementById('posX').value = x;
+            document.getElementById('posY').value = y;
+            document.getElementById('fZone').value = zone;
+            document.getElementById('fNumber').value = '';
+            document.getElementById('fStatus').value = 'sale';
+            document.getElementById('fType').value = 'شقة سكنية';
+            document.getElementById('fDetails').value = '';
+            document.getElementById('fPrice').value = '';
+            document.getElementById('fOwner').value = '';
+            document.getElementById('fPhone').value = '';
+            document.getElementById('fNotes').value = '';
+            document.getElementById('movePinBox').style.display = 'none';
+            openModal('buildingModal');
+        }
+
+        function openEditBuilding(id) {
+            const b = appState.buildings.find(item => item.id === id);
+            if (!b) return;
+            closeModal('detailsModal');
+            document.getElementById('modalTitle').textContent = 'تعديل عرض: ' + b.zone + ' - ' + b.number;
+            document.getElementById('editId').value = b.id;
+            document.getElementById('posX').value = b.x;
+            document.getElementById('posY').value = b.y;
+            document.getElementById('fZone').value = b.zone;
+            document.getElementById('fNumber').value = b.number;
+            document.getElementById('fStatus').value = b.status;
+            document.getElementById('fType').value = b.type;
+            document.getElementById('fDetails').value = b.details;
+            document.getElementById('fPrice').value = b.price;
+            document.getElementById('fOwner').value = b.owner;
+            document.getElementById('fPhone').value = b.phone;
+            document.getElementById('fNotes').value = b.notes;
+            document.getElementById('movePinBox').style.display = 'block';
+            openModal('buildingModal');
+        }
+
+        function startMovePin() {
+            movingBuildingId = document.getElementById('editId').value;
+            closeModal('buildingModal');
+            document.getElementById('mapInstructionBanner').textContent = '📍 انقر الآن على الموقع الجديد للبناء داخل الخريطة...';
+            document.getElementById('mapInstructionBanner').style.background = '#0284c7';
+            document.getElementById('cancelMoveBtn').style.display = 'inline-flex';
+        }
+
+        function cancelMovePin() {
+            movingBuildingId = null;
+            document.getElementById('mapInstructionBanner').textContent = '👆 انقر على أي جزيرة في الخريطة لإضافة بناء جديد وتحديد موقعه';
+            document.getElementById('mapInstructionBanner').style.background = 'rgba(15, 23, 42, 0.85)';
+            document.getElementById('cancelMoveBtn').style.display = 'none';
+        }
+
+        function saveBuilding(e) {
+            e.preventDefault();
+            const editId = document.getElementById('editId').value;
+            const data = {
+                id: editId || 'b_' + Date.now(),
+                x: Number(document.getElementById('posX').value) || 800,
+                y: Number(document.getElementById('posY').value) || 550,
+                zone: document.getElementById('fZone').value,
+                number: document.getElementById('fNumber').value.trim(),
+                status: document.getElementById('fStatus').value,
+                type: document.getElementById('fType').value,
+                details: document.getElementById('fDetails').value.trim(),
+                price: document.getElementById('fPrice').value.trim(),
+                owner: document.getElementById('fOwner').value.trim(),
+                phone: document.getElementById('fPhone').value.trim(),
+                notes: document.getElementById('fNotes').value.trim()
+            };
+
+            if (editId) {
+                const idx = appState.buildings.findIndex(item => item.id === editId);
+                if (idx !== -1) appState.buildings[idx] = data;
+                showToast('تم تعديل بيانات العرض بنجاح');
+            } else {
+                appState.buildings.unshift(data);
+                showToast('تمت إضافة العرض إلى الخريطة');
+            }
+
+            closeModal('buildingModal');
+            renderAll();
+        }
+
+        function openDetails(id) {
+            const b = appState.buildings.find(item => item.id === id);
+            if (!b) return;
+            const st = getStatusInfo(b.status);
+            document.getElementById('detTitle').textContent = b.zone + ' - ' + b.number;
+            document.getElementById('detContent').innerHTML = `
+                <div><span class="badge ${st.cls}">${st.label}</span> <strong>${b.type}</strong></div>
+                <div><strong>السعر:</strong> ${b.price || 'غير محدد'}</div>
+                <div><strong>التفاصيل:</strong> ${b.details || '-'}</div>
+                <div><strong>المالك:</strong> ${b.owner || '-'} (${b.phone || 'لا يوجد رقم'})</div>
+                <div style="background:#f8fafc; padding:10px; border-radius:8px; border:1px solid var(--border);">
+                    <strong>ملاحظات:</strong> ${b.notes || 'لا توجد ملاحظات'}
+                </div>
+            `;
+
+            document.getElementById('detCopyBtn').onclick = () => {
+                const adText = `🏢 عرض عقاري في مشروع دمر\n📍 الموقع: ${b.zone} - ${b.number}\n🏠 النوع: ${b.type} (${st.label})\n📐 التفاصيل: ${b.details}\n💰 السعر: ${b.price}\n📝 ملاحظات: ${b.notes}`;
+                const temp = document.createElement('textarea');
+                temp.value = adText;
+                document.body.appendChild(temp);
+                temp.select();
+                document.execCommand('copy');
+                document.body.removeChild(temp);
+                showToast('تم نسخ صيغة الإعلان للحافظة');
+            };
+
+            document.getElementById('detEditBtn').onclick = () => openEditBuilding(b.id);
+            document.getElementById('detDeleteBtn').onclick = () => askDeleteBuilding(b.id);
+
+            openModal('detailsModal');
+        }
+
+        function askDeleteBuilding(id) {
+            const b = appState.buildings.find(item => item.id === id);
+            if (!b) return;
+            document.getElementById('confirmMessage').textContent = `هل أنت متأكد من حذف عرض "${b.zone} - ${b.number}" نهائياً؟`;
+            document.getElementById('confirmYesBtn').onclick = () => {
+                appState.buildings = appState.buildings.filter(item => item.id !== id);
+                closeModal('confirmModal');
+                closeModal('detailsModal');
+                renderAll();
+                showToast('تم حذف العرض');
+            };
+            openModal('confirmModal');
+        }
+
+        function askDeleteAll() {
+            document.getElementById('confirmMessage').textContent = `هل تريد حذف جميع العروض المسجلة (${appState.buildings.length} عرض) وتفريغ الخريطة؟`;
+            document.getElementById('confirmYesBtn').onclick = () => {
+                appState.buildings = [];
+                closeModal('confirmModal');
+                renderAll();
+                showToast('تم تفريغ جميع العروض');
+            };
+            openModal('confirmModal');
+        }
+
+        /* ==========================================================================
+           5. قسم المالية والعمولات
+           ========================================================================== */
+        function calcCommissionPreview() {
+            const price = Number(document.getElementById('dealPrice').value) || 0;
+            const pct = Number(document.getElementById('dealPercent').value) || 0;
+            const myRatio = Number(document.getElementById('dealMyRatio').value) || 0;
+            const totalComm = (price * pct) / 100;
+            const myPart = (totalComm * myRatio) / 100;
+            const partnerPart = totalComm - myPart;
+            document.getElementById('commPreviewBox').textContent =
+                `العمولة: ${totalComm.toFixed(0)} $ (حصتي: ${myPart.toFixed(0)} $ | شريكي: ${partnerPart.toFixed(0)} $)`;
+        }
+
+        function addDeal() {
+            const title = document.getElementById('dealTitle').value.trim();
+            const price = Number(document.getElementById('dealPrice').value) || 0;
+            const pct = Number(document.getElementById('dealPercent').value) || 0;
+            const myRatio = Number(document.getElementById('dealMyRatio').value) || 50;
+
+            if (!title || price <= 0) {
+                showToast('يرجى إدخال وصف الصفقة والسعر');
+                return;
+            }
+
+            const comm = (price * pct) / 100;
+            const myPart = (comm * myRatio) / 100;
+            const partnerPart = comm - myPart;
+
+            appState.deals.unshift({ title, comm, myPart, partnerPart });
+            document.getElementById('dealTitle').value = '';
+            document.getElementById('dealPrice').value = '';
+            calcCommissionPreview();
+            renderAll();
+            showToast('تم تسجيل الصفقة وتوزيع العمولات');
+        }
+
+        function addExpense() {
+            const title = document.getElementById('expTitle').value.trim();
+            const amount = Number(document.getElementById('expAmount').value) || 0;
+            if (!title || amount <= 0) {
+                showToast('يرجى إدخال بيان المصروف والمبلغ');
+                return;
+            }
+            appState.expenses.unshift({ title, amount });
+            document.getElementById('expTitle').value = '';
+            document.getElementById('expAmount').value = '';
+            renderAll();
+            showToast('تم تسجيل المصروف');
+        }
+
+        /* ==========================================================================
+           6. محادثة الشريكين والمزامنة أوفلاين
+           ========================================================================== */
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const sender = document.getElementById('chatSender').value;
+            const text = input.value.trim();
+            if (!text) return;
+
+            const now = new Date();
+            const time = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            appState.messages.push({ sender, text, time });
+            input.value = '';
+            renderAll();
+        }
+
+        function exportSyncCode() {
+            const box = document.getElementById('syncTextBox');
+            box.value = JSON.stringify(appState);
+            box.select();
+            document.execCommand('copy');
+            showToast('تم نسخ كود البيانات! أرسله لشريكك');
+        }
+
+        function importSyncCode() {
+            const raw = document.getElementById('syncTextBox').value.trim();
+            if (!raw) {
+                showToast('الرجاء لصق كود البيانات أولاً');
+                return;
+            }
+            try {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed.buildings)) {
+                    appState = parsed;
+                    renderAll();
+                    showToast('تم استيراد البيانات وتحديث الخريطة بنجاح');
+                } else {
+                    showToast('صيغة الكود غير صحيحة');
+                }
+            } catch (err) {
+                showToast('خطأ في قراءة الكود، تأكد من نسخه بالكامل');
+            }
+        }
+
+        /* ==========================================================================
+           7. تحديث الواجهة بالكامل (Render Engine)
+           ========================================================================== */
+        function renderAll() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            const filtered = appState.buildings.filter(b => {
+                const matchStatus = currentFilter === 'all' || b.status === currentFilter;
+                const matchText = !query ||
+                    b.zone.toLowerCase().includes(query) ||
+                    b.number.toLowerCase().includes(query) ||
+                    b.owner.toLowerCase().includes(query);
+                return matchStatus && matchText;
+            });
+
+            document.getElementById('totalCount').textContent = appState.buildings.length;
+            document.getElementById('clearAllBtn').style.display = appState.buildings.length > 0 ? 'inline-flex' : 'none';
+
+            // رسم الدبابيس على الخريطة
+            const pinsLayer = document.getElementById('pinsLayer');
+            pinsLayer.innerHTML = '';
+            filtered.forEach(b => {
+                const st = getStatusInfo(b.status);
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.setAttribute('class', 'pin-group');
+                g.setAttribute('transform', `translate(${b.x}, ${b.y})`);
+                g.innerHTML = `
+                    <circle cx="0" cy="0" r="16" fill="${st.color}" stroke="#ffffff" stroke-width="3" />
+                    <rect x="-42" y="-38" width="84" height="20" rx="6" fill="#0f172a" />
+                    <text x="0" y="-24" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">${b.number}</text>
+                `;
+                g.onclick = (e) => {
+                    e.stopPropagation();
+                    openDetails(b.id);
+                };
+                pinsLayer.appendChild(g);
+            });
+
+            // تحديث القائمة الجانبية
+            const listEl = document.getElementById('buildingsList');
+            if (filtered.length === 0) {
+                listEl.innerHTML = `
+                    <div style="text-align:center; padding:30px 10px; color:var(--text-muted); font-size:13px; line-height:1.7;">
+                        <div style="font-size:28px; margin-bottom:6px;">🗺️</div>
+                        <strong>لا توجد عروض مطابقة</strong><br>
+                        انقر على أي جزيرة في الخريطة لإضافة عرض جديد.
+                    </div>
+                `;
+            } else {
+                listEl.innerHTML = filtered.map(b => {
+                    const st = getStatusInfo(b.status);
+                    return `
+                        <div class="bldg-card" onclick="openDetails('${b.id}')">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span class="badge ${st.cls}">${st.label}</span>
+                                <strong style="font-size:12.5px; color:var(--primary-dark);">${b.price || ''}</strong>
+                            </div>
+                            <div style="font-weight:800; font-size:14px; margin-top:6px;">${b.zone} - ${b.number}</div>
+                            <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">${b.type} ${b.details ? '• ' + b.details : ''}</div>
+                            <div style="display:flex; gap:6px; margin-top:10px;" onclick="event.stopPropagation()">
+                                <button type="button" class="btn btn-outline" style="padding:4px 10px; font-size:11.5px;" onclick="openEditBuilding('${b.id}')">✏️ تعديل</button>
+                                <button type="button" class="btn btn-danger" style="padding:4px 10px; font-size:11.5px;" onclick="askDeleteBuilding('${b.id}')">🗑️ حذف</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // تحديث قسم المالية
+            const totalComm = appState.deals.reduce((sum, d) => sum + d.comm, 0);
+            const totalExp = appState.expenses.reduce((sum, e) => sum + e.amount, 0);
+            const rawMy = appState.deals.reduce((sum, d) => sum + d.myPart, 0) - (totalExp / 2);
+            const rawPartner = appState.deals.reduce((sum, d) => sum + d.partnerPart, 0) - (totalExp / 2);
+
+            document.getElementById('statTotalComm').textContent = totalComm.toFixed(0) + ' $';
+            document.getElementById('statTotalExp').textContent = totalExp.toFixed(0) + ' $';
+            document.getElementById('statMyShare').textContent = rawMy.toFixed(0) + ' $';
+            document.getElementById('statPartnerShare').textContent = rawPartner.toFixed(0) + ' $';
+
+            const finHist = document.getElementById('financeHistoryList');
+            finHist.innerHTML = [
+                ...appState.deals.map(d => `<div style="padding:8px; background:#f0fdf4; border-radius:8px; font-size:12.5px;">✅ <strong>${d.title}</strong> — عمولة: ${d.comm.toFixed(0)} $</div>`),
+                ...appState.expenses.map(e => `<div style="padding:8px; background:#fef2f2; border-radius:8px; font-size:12.5px;">🔻 <strong>مصروف: ${e.title}</strong> — (${e.amount} $)</div>`)
+            ].join('') || '<div style="font-size:12px; color:var(--text-muted);">لا توجد حركات مالية مسجلة بعد.</div>';
+
+            // تحديث المحادثة
+            const chatBox = document.getElementById('chatMessagesBox');
+            chatBox.innerHTML = appState.messages.map(m => `
+                <div class="msg-bubble ${m.sender === 'أنا' ? 'msg-me' : 'msg-partner'}">
+                    <div style="font-size:11px; opacity:0.8; margin-bottom:2px; font-weight:700;">${m.sender} • ${m.time}</div>
+                    <div>${m.text}</div>
+                </div>
+            `).join('');
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // التشغيل الفوري عند تحميل الصفحة
+        renderAll();
+    </script>
+</body>
+</html>
